@@ -2,8 +2,31 @@ import { View, Text, ScrollView } from "react-native";
 import React from "react";
 import CategoryCard from "./CategoryCard";
 import { ImagesToShow } from "../constants";
+import sanityClient from "../sanity";
+import { urlFor } from "../sanity";
 
 const Categories = () => {
+  const [categories, setCategories] = React.useState([]);
+
+  const fetchData = () => {
+    return sanityClient
+      .fetch(`*[_type == "category"]`)
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((error) => {
+        console.log(
+          "There has been a problem with your fetch operation: " + error.message
+        );
+        // ADD THIS THROW error
+        throw error;
+      });
+  };
+
+  React.useState(() => {
+    fetchData();
+  }, []);
+
   return (
     <ScrollView
       horizontal
@@ -11,12 +34,13 @@ const Categories = () => {
       contentContainerStyle={{ paddingHorizontal: 15, paddingTop: 10 }}
     >
       {/* CategoryCard */}
-      <CategoryCard imgUrl={ImagesToShow[1].uri} title={"Testing"} />
-      <CategoryCard imgUrl={ImagesToShow[2].uri} title={"Testing"} />
-      <CategoryCard imgUrl={ImagesToShow[3].uri} title={"Testing"} />
-      <CategoryCard imgUrl={ImagesToShow[4].uri} title={"Testing"} />
-      <CategoryCard imgUrl={ImagesToShow[5].uri} title={"Testing"} />
-      <CategoryCard imgUrl={ImagesToShow[6].uri} title={"Testing"} />
+      {categories.map((category) => (
+        <CategoryCard
+          key={category._id}
+          imgUrl={urlFor(category.image).width(200).url()}
+          title={category.name}
+        />
+      ))}
     </ScrollView>
   );
 };

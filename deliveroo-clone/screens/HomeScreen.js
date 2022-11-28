@@ -20,6 +20,30 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [featuredCategories, setFeaturedCategories] = useState([]);
 
+  const fetchData = () => {
+    return sanityClient
+      .fetch(
+        `
+    *[_type == 'featured'] {
+      ...,
+      restaurants[]->{
+        ...,
+        dishes[]->
+      }
+    }`
+      )
+      .then((data) => {
+        setFeaturedCategories(data);
+      })
+      .catch((error) => {
+        console.log(
+          "There has been a problem with your fetch operation: " + error.message
+        );
+        // ADD THIS THROW error
+        throw error;
+      });
+  };
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -27,24 +51,8 @@ const HomeScreen = () => {
   }, []);
 
   React.useState(() => {
-    sanityClient
-      .fetch(
-        `
-      *[_type == 'featured'] {
-        ...,
-        restaurants[]->{
-          ...,
-          dishes[]->
-        }
-      }
-    `
-      )
-      .then((data) => {
-        setFeaturedCategories(data);
-      });
+    fetchData();
   }, []);
-
-  console.log(featuredCategories);
 
   return (
     <SafeAreaView className="bg-white pt-5">
@@ -91,25 +99,14 @@ const HomeScreen = () => {
         <Categories />
 
         {/* Featured Row */}
-        {featuredCategories?.map((category) => {
+        {featuredCategories?.map((category) => (
           <FeaturedRow
             key={category._id}
             id={category._id}
             title={category.name}
             description={category.short_description}
-          />;
-        })}
-
-        <FeaturedRow
-          id={"2"}
-          title={"Tasty Discount"}
-          description={"Paid Placements for our partners"}
-        />
-        <FeaturedRow
-          id={"3"}
-          title={"Offers Near You"}
-          description={"Paid Placements for our partners"}
-        />
+          />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );

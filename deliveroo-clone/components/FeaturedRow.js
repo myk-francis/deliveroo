@@ -3,8 +3,40 @@ import React from "react";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import RestaurantCard from "./RestaurantCard";
 import { ImagesToShow } from "../constants";
+import sanityClient from "../sanity";
 
 const FeaturedRow = ({ id, title, description }) => {
+  const [restaurants, setRestaurants] = React.useState([]);
+
+  const fetchData = () => {
+    return sanityClient
+      .fetch(
+        `
+    *[_type == "featured" && _id == $id] {
+      ...,
+      restaurants[]->{
+        ...,
+        dishes[]->
+      },
+    }[0]`,
+        { id: id }
+      )
+      .then((data) => {
+        setRestaurants(data?.restaurants);
+      })
+      .catch(function (error) {
+        console.log(
+          "There has been a problem with your fetch operation: " + error.message
+        );
+        // ADD THIS THROW error
+        throw error;
+      });
+  };
+
+  React.useState(() => {
+    fetchData();
+  }, [id]);
+
   return (
     <View>
       <View className="flex-row items-center justify-between mt-4 px-4">
@@ -21,42 +53,21 @@ const FeaturedRow = ({ id, title, description }) => {
         className="px-4"
       >
         {/* Restaurants Cards */}
-        <RestaurantCard
-          id={"1"}
-          imgUrl={ImagesToShow[6].uri}
-          title={"Mike Foods!"}
-          rating={4.8}
-          genre={"Bongo Foods"}
-          address={"Moshi Beach"}
-          short_description={"This is a test description"}
-          dishes={[]}
-          long={20}
-          lat={19}
-        />
-        <RestaurantCard
-          id={"1"}
-          imgUrl={ImagesToShow[6].uri}
-          title={"Mike Foods!"}
-          rating={4.8}
-          genre={"Bongo Foods"}
-          address={"Moshi Beach"}
-          short_description={"This is a test description"}
-          dishes={[]}
-          long={20}
-          lat={19}
-        />
-        <RestaurantCard
-          id={"1"}
-          imgUrl={ImagesToShow[6].uri}
-          title={"Mike Foods!"}
-          rating={4.8}
-          genre={"Bongo Foods"}
-          address={"Moshi Beach"}
-          short_description={"This is a test description"}
-          dishes={[]}
-          long={20}
-          lat={19}
-        />
+        {restaurants.map((restaurant) => (
+          <RestaurantCard
+            key={restaurant._id}
+            id={restaurant._id}
+            imgUrl={restaurant.image}
+            title={restaurant.name}
+            rating={restaurant.rating}
+            genre={restaurant.type?.name}
+            address={restaurant.address}
+            short_description={restaurant.short_description}
+            dishes={restaurant.dishes}
+            long={restaurant.long}
+            lat={restaurant.lat}
+          />
+        ))}
       </ScrollView>
     </View>
   );

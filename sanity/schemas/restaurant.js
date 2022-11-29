@@ -41,6 +41,11 @@ export default {
           .error("Please enter value between 1 and 5"),
     },
     {
+      name: "genre",
+      type: "string",
+      title: "Genre",
+    },
+    {
       name: "type",
       title: "Category",
       validation: (Rule) => Rule.required(),

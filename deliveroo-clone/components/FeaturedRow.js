@@ -7,6 +7,7 @@ import sanityClient from "../sanity";
 
 const FeaturedRow = ({ id, title, description }) => {
   const [restaurants, setRestaurants] = React.useState([]);
+  const [featured, setFeatured] = React.useState([]);
 
   const fetchData = () => {
     return sanityClient
@@ -23,6 +24,7 @@ const FeaturedRow = ({ id, title, description }) => {
       )
       .then((data) => {
         setRestaurants(data?.restaurants);
+        setFeatured(data);
       })
       .catch(function (error) {
         console.log(
@@ -60,9 +62,9 @@ const FeaturedRow = ({ id, title, description }) => {
             imgUrl={restaurant.image}
             title={restaurant.name}
             rating={restaurant.rating}
-            genre={restaurant.type?.name}
+            genre={restaurant.genre}
             address={restaurant.address}
-            short_description={restaurant.short_description}
+            short_description={featured.short_description}
             dishes={restaurant.dishes}
             long={restaurant.long}
             lat={restaurant.lat}

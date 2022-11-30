@@ -33,9 +33,7 @@ const BasketIcon = () => {
         <Text className="flex-1 text-white text-lg font-extrabold text-center">
           View Basket
         </Text>
-        <Text className="text-lg text-white font-extrabold">
-          {currencyFormat(basketTotal)}
-        </Text>
+        <Text className="text-lg text-white font-extrabold">{basketTotal}</Text>
       </TouchableOpacity>
     </View>
   );
